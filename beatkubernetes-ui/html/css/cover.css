@@ -100,11 +100,11 @@ body {
 /*
  * Chess Board
  */
-.cover .chess-board { border-spacing: 0; border-collapse: collapse; }
+.cover .chess-board { border-spacing: 0; border-collapse: collapse; font-family: "Tahoma, Geneva, sans-serif" }
 .cover .chess-board th { padding: .5em; }
-.cover .chess-board td { border: 1px solid; height: 4em; width: 4em; }
-.cover .chess-board .light { background: #eee; width: 4em; }
-.cover .chess-board .dark { background: #000; width: 4em; }
+.cover .chess-board td { border: 1px solid; height: 2em; }
+.cover .chess-board .light { background: #eee; width: 2em; font-size: 2em; }
+.cover .chess-board .dark { background: #FFA200; width: 2em; font-size: 2em; }
 
 /*
  * Footer
