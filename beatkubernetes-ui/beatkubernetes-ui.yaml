@@ -1,0 +1,63 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: beatkubernetes-ui
+  name: beatkubernetes-ui
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: beatkubernetes-ui
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: beatkubernetes-ui
+    spec:
+      containers:
+      - image: calvinhartwell/beatkubernetes-ui:v1
+        imagePullPolicy: Always
+        name: beatkubernetes-ui
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 30
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beatkubernetes-ui
+spec:
+  type: NodePort
+  selector:
+     app: beatkubernetes-ui
+  ports:
+  - name: beatkubernetes-ui
+    protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: beatkubernetes-ui
+spec:
+ rules:
+   - host: beatkubernetes.com
+     http:
+       paths:
+         - path: /
+           backend:
+             serviceName: beatkubernetes-ui
+             servicePort: 80

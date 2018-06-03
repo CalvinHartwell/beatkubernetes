@@ -1,4 +1,4 @@
-M ubuntu
+FROM ubuntu
 
 # Set the file maintainer (your name - the file's author)
 MAINTAINER calvinhartwell
