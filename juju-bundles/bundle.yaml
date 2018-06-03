@@ -1,0 +1,159 @@
+series: xenial
+description: A nine-machine Kubernetes cluster, appropriate for production. Includes a three-machine etcd cluster and three Kubernetes worker nodes.
+services:
+  canal:
+    annotations:
+      gui-x: '450'
+      gui-y: '750'
+    charm: cs:~containers/canal
+  ceph-mon:
+    annotations:
+      gui-x: '600'
+      gui-y: '300'
+    charm: cs:ceph-mon
+    num_units: 3
+    to:
+    - lxd:kubernetes-worker
+  ceph-osd:
+    annotations:
+      gui-x: '300'
+      gui-y: '300'
+    charm: cs:ceph-osd
+    num_units: 3
+    to:
+    - kubernetes-worker
+  easyrsa:
+    annotations:
+      gui-x: '450'
+      gui-y: '550'
+    charm: cs:~containers/easyrsa
+    constraints: root-disk=8G
+    num_units: 1
+    to:
+    - lxd:kubernetes-master
+  etcd:
+    annotations:
+      gui-x: '800'
+      gui-y: '550'
+    charm: cs:~containers/etcd
+    constraints: root-disk=8G
+    num_units: 3
+    options:
+      channel: 3.2/stable
+  kubeapi-load-balancer:
+    annotations:
+      gui-x: '450'
+      gui-y: '250'
+    charm: cs:~containers/kubeapi-load-balancer
+    constraints: root-disk=8G
+    expose: true
+    num_units: 1
+  kubernetes-master:
+    annotations:
+      gui-x: '800'
+      gui-y: '850'
+    charm: cs:~containers/kubernetes-master
+    constraints: cores=2 mem=4G root-disk=16G
+    num_units: 2
+    options:
+      channel: 1.10/stable
+  kubernetes-worker:
+    annotations:
+      gui-x: '100'
+      gui-y: '850'
+    charm: cs:~containers/kubernetes-worker
+    constraints: cores=4 mem=4G root-disk=16G
+    expose: true
+    num_units: 3
+    options:
+      channel: 1.10/stable
+   ### Logging ###
+  apache2:
+    charm: cs:xenial/apache2
+    constraints: root-disk=8G
+    num_units: 1
+    expose: true
+    options:
+      enable_modules: "headers proxy_html proxy_http"
+  elasticsearch:
+    charm: cs:xenial/elasticsearch
+    num_units: 1
+    constraints: mem=4G root-disk=16G
+  filebeat:
+    charm: cs:xenial/filebeat
+    options:
+      logpath: '/var/log/*.log /var/log/containers/*.log'
+  graylog:
+    charm: cs:xenial/graylog
+    num_units: 1
+    constraints: mem=4G root-disk=16G
+    #options:
+    #  snap_proxy: http://10.244.3.10:80
+  mongodb:
+    charm: cs:xenial/mongodb
+    constraints: root-disk=8G
+    num_units: 1
+### Monitoring ###
+  grafana:
+    charm: cs:xenial/grafana
+    constraints: root-disk=8G
+    num_units: 1
+    expose: true
+    #options:
+    #  http_proxy: http://10.244.3.10:80
+  prometheus:
+    charm: cs:xenial/prometheus
+    constraints: mem=4G root-disk=16G
+    num_units: 1
+  telegraf:
+    charm: cs:xenial/telegraf
+
+relations:
+- - kubernetes-master:kube-api-endpoint
+  - kubeapi-load-balancer:apiserver
+- - kubernetes-master:loadbalancer
+  - kubeapi-load-balancer:loadbalancer
+- - kubernetes-master:kube-control
+  - kubernetes-worker:kube-control
+- - kubernetes-master:certificates
+  - easyrsa:client
+- - etcd:certificates
+  - easyrsa:client
+- - kubernetes-master:etcd
+  - etcd:db
+- - kubernetes-worker:certificates
+  - easyrsa:client
+- - kubernetes-worker:kube-api-endpoint
+  - kubeapi-load-balancer:website
+- - kubeapi-load-balancer:certificates
+  - easyrsa:client
+- - canal:etcd
+  - etcd:db
+- - canal:cni
+  - kubernetes-master:cni
+- - canal:cni
+  - kubernetes-worker:cni
+- - kubernetes-master:ceph-storage
+  - ceph-mon:admin
+- - ceph-mon:osd
+  - ceph-osd:mon
+- - apache2:reverseproxy
+  - graylog:website
+- - graylog:elasticsearch
+  - elasticsearch:client
+- - graylog:mongodb
+  - mongodb:database
+- - filebeat:beats-host
+  - kubernetes-master:juju-info
+- - filebeat:beats-host
+  - kubernetes-worker:juju-info
+- - filebeat:logstash
+  - graylog:beats
+- - prometheus:grafana-source
+  - grafana:grafana-source
+- - telegraf:prometheus-client
+  - prometheus:target
+- - kubernetes-master:juju-info
+  - telegraf:juju-info
+- - kubernetes-worker:juju-info
+  - telegraf:juju-info
