@@ -103,8 +103,15 @@ body {
 .cover .chess-board { border-spacing: 0; border-collapse: collapse; font-family: "Tahoma, Geneva, sans-serif" }
 .cover .chess-board th { padding: .5em; }
 .cover .chess-board td { border: 1px solid; height: 2em; }
+.cover .chess-board td:hover {
+   border: 2px solid #9ecaed;
+   outline: none;
+   border-color: #9ecaed;
+   box-shadow: 0 0 10px #9ecaed;
+}
 .cover .chess-board .light { background: #eee; width: 2em; font-size: 2em; }
-.cover .chess-board .dark { background: #FFA200; width: 2em; font-size: 2em; }
+.cover .chess-board .dark { background: #E98D31; width: 2em; font-size: 2em; }
+.cover b { color: black; }
 
 /*
  * Footer
