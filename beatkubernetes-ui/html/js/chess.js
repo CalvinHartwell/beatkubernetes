@@ -39,8 +39,12 @@ function update(position) {
     else
     {
       if(selectedPosition != position) {
-      document.getElementById(selectedPosition).value=document.getElementById(position).value
-      document.getElementById(selectedPosition).value=""
+      alert(position)
+      alert(selectedPosition)
+      alert(document.getElementById(selectedPosition).innerHTML)
+      alert(document.getElementById(selectedPosition).innerHTML)
+      document.getElementById(position).innerHTML=document.getElementById(selectedPosition).innerHTML
+      document.getElementById(selectedPosition).innerHTML=""
       selectedPosition=""
       }
     }
